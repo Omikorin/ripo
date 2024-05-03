@@ -22,5 +22,11 @@ sudo docker pull $t
 sudo docker run -it --ipc=host --gpus all $t
 ```
 
+or for CPU version
+
+```sh
+sudo docker run -it --ipc=host $t
+```
+
 By using `-it` we are in the interactive mode, where we can communicate with YOLO.
 
