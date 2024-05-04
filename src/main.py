@@ -3,6 +3,7 @@ import math
 import cv2
 import numpy as np
 from ultralytics import YOLO
+from Camera import Camera
 
 
 def calculate_focal_length(AFOV_deg, SENSOR_W, SENSOR_H):
@@ -27,29 +28,16 @@ def rescale_image(image):
     return cv2.resize(image, (new_width, new_height))
 
 
-# Assuming we have height, width of sensor and deg AFOV!!!
+def addCamera(sensor_width, sensor_height, focal_length, camera_position_height, afov_deg):
+    return Camera(sensor_width, sensor_height, focal_length, camera_position_height, afov_deg)
 
-AFOV_DEG = 126  # Angular Field Of View
-SENSOR_H, SENSOR_W = 8.8, 6.6  # szerokosc, wysokosc w milimetrach
-SENSOR_D = math.sqrt(SENSOR_W ** 2 + SENSOR_H ** 2)  # przekatna
-# LENS_FOCAL = calculate_focal_length(AFOV_DEG, SENSOR_W, SENSOR_H)  # ogniskowa obiektywu
-# print('LENS FOCAL CALCULATED', LENS_FOCAL)
-LENS_FOCAL = 1.95
-CAMERA_POS_HEIGHT = 0.7  # wysokosc umieszczenia kamery w metrach
 
-AFOV_HORIZONTAL = math.degrees(2 * math.atan(SENSOR_W / (2 * LENS_FOCAL)))
-AFOV_VERTICAL = math.degrees(2 * math.atan(SENSOR_H / (2 * LENS_FOCAL)))
+camera = addCamera(6.6, 8.8, 1.95, 0.7, 126)
 
 model = YOLO("yolov8n.pt")
 results = model('resized.jpg', show=True)
-
 image = cv2.imread('resized.jpg')
-
 IMAGE_WIDTH, IMAGE_HEIGHT = image.shape[1], image.shape[0]
-
-print('lens FOccal', LENS_FOCAL)
-print('AFOV_h', AFOV_HORIZONTAL)
-print('AFOV_v', AFOV_VERTICAL)
 
 
 def calculate_distance(bottom_y_pos_of_object):
@@ -66,9 +54,9 @@ def calculate_distance(bottom_y_pos_of_object):
     ALPHA = (AFOV_H/2)/(1 + (Y/X)
     """
 
-    alpha = (AFOV_VERTICAL / 2) / (1 + (y / x))
+    alpha = (camera.afov_vertical / 2) / (1 + (y / x))
 
-    return math.tan(math.radians(90 - alpha)) * CAMERA_POS_HEIGHT
+    return math.tan(math.radians(90 - alpha)) * camera.camera_position_height
 
 
 def custom_boxes():
@@ -98,8 +86,8 @@ def calc_y_pos_from_distance(distance_y):
     """
 
     l = distance_y
-    h = CAMERA_POS_HEIGHT
-    v_afov = AFOV_VERTICAL
+    h = camera.camera_position_height
+    v_afov = camera.afov_vertical
     beta_plus_gamma = math.degrees(math.atan(l / h))
     alpha = 90 - beta_plus_gamma
     beta = v_afov / 2 - alpha
@@ -142,7 +130,7 @@ def calc_box(distance_x, distance_y):
     """
 
     a = distance_x / 2
-    alpha = AFOV_HORIZONTAL / 2
+    alpha = camera.afov_horizontal / 2
     print('alpha', alpha)
     b = a / math.tan(math.radians(alpha))
     print('b:', b)
@@ -240,7 +228,6 @@ def drawLines():
     pass
 
 
-# print('CALC DIST HORIZONT', calculate_distance((IMAGE_HEIGHT / 2)+1))
 custom_boxes()
 # draw_horizontal_line()
 draw_line_at(4.5)
