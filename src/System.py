@@ -101,10 +101,11 @@ class System:
 
     def calc_box(self, distance_x, distance_y):
         """
+        CALCULATING DISTANCE FROM
         let distance_x be the base of isosceles triangle with top angle equal to AFOV_HORIZONTAL
         and height of h
 
-        therefore half of this triangle has base of a = distance/2
+        therefore half of this triangle has base of a = distance_x/2
         angle alpha = AFOV_HORIZONTAL / 2
         and height b = h
         we look for b
