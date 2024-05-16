@@ -1,11 +1,13 @@
 from Camera import Camera
 import math
 import cv2
+from DangerZoneBox import DangerZoneBox
 from ultralytics import YOLO
 
 
 class System:
     def __init__(self):
+        self.image_path = None
         self.results = None
         self.image_width = None
         self.image_height = None
@@ -17,6 +19,7 @@ class System:
         self.focal_length = None
         self.sensor_height = None
         self.sensor_width = None
+        self.dangerZone = None
 
     def configure(self, sensor_width, sensor_height, focal_length, camera_position_height, box_height,
                   box_width):
@@ -29,17 +32,23 @@ class System:
 
         self.create_camera()
 
+        self.dangerZone = DangerZoneBox(box_width, box_height)
+
+        borders = self.calc_box(box_width, box_height)
+        self.dangerZone.set_zone_borders(borders[0], borders[1], borders[2], borders[3])
+
     def create_camera(self):
         self.camera = Camera(self.sensor_width, self.sensor_height, self.focal_length, self.camera_position_height)
 
-    def load_image(self, image):
-        self.image = image
+    def load_image(self, path):
+        self.image_path = path
+        self.image = cv2.imread(path)
         self.image_height = self.image.shape[0]
         self.image_width = self.image.shape[1]
 
     def analyse_image(self):
         model = YOLO("yolov8n.pt")
-        self.results = model('test-apsc.jpg', show=True)
+        self.results = model(self.image_path, show=True)
 
     # UTILITY FUNCTIONS
     def calculate_distance(self, bottom_y_pos_of_object):
@@ -200,12 +209,12 @@ class System:
         self.draw_line_at(6.0)
         self.draw_line_at(7.5)
 
-    def draw_box(self, box_width, box_height):
-        # we need for points
+    def draw_box(self):
+        # we need four points
         # top_left, top_right
         # bottom_left, bottom_right
 
-        top_left, top_right, bottom_left, bottom_right = self.calc_box(box_width, box_height)
+        top_left, top_right, bottom_left, bottom_right = self.dangerZone.get_zone_borders()
 
         cv2.line(self.image, top_left, bottom_left, (0, 255, 255), 3)
         cv2.line(self.image, top_right, bottom_right, (0, 255, 255), 3)
@@ -214,18 +223,25 @@ class System:
         for r in self.results:
             boxes = r.boxes
             for box in boxes:
-                x, y, x2, y2 = box.xyxy[0]
-                x, y, x2, y2 = int(x), int(y), int(x2), int(y2)
-                if y2 > 630:
-                    cv2.rectangle(self.image, (x, y), (x2, y2), (255, 255, 0), 3)
-                    print('Distance from this object aprx: ' + str(self.calculate_distance(y2)))
+                if self.dangerZone.is_object_inside(box):
+                    x, y, x2, y2 = box.xyxy[0]
+                    x, y, x2, y2 = int(x), int(y), int(x2), int(y2)
+                    cv2.rectangle(self.image, (x, y), (x2, y2), (255, 0, 255), 3)
+                    print('Box:', box, ' is inside')
 
+                # if y2 > 630:
+                #     cv2.rectangle(self.image, (x, y), (x2, y2), (255, 255, 0), 3)
+                #     print('Distance from this object aprx: ' + str(self.calculate_distance(y2)))
+
+
+    def check_danger_zone(self):
+        pass
     def run_test(self):
         self.analyse_image()
         self.custom_boxes()
         # cv2.imshow('Raw img from model', self.image)
         # perform overlay and drawing
         self.draw_test_lines()
-        self.draw_box(self.box_width, self.box_height)
+        self.draw_box()
         cv2.imshow('Img after drawing', self.image)
         cv2.waitKey(0)
