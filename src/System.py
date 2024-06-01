@@ -7,6 +7,10 @@ from ultralytics import YOLO
 
 class System:
     def __init__(self):
+        self.capture_path = None
+        self.capture = None
+        self.capture_width = None
+        self.capture_height = None
         self.image_path = None
         self.results = None
         self.image_width = None
@@ -40,11 +44,70 @@ class System:
     def create_camera(self):
         self.camera = Camera(self.sensor_width, self.sensor_height, self.focal_length, self.camera_position_height)
 
+    def load_video_capture(self, path):
+        self.capture_path = path
+
+        if path == 0: # webcam
+            self.capture = cv2.VideoCapture(path, cv2.CAP_DSHOW)
+        else:
+            self.capture = cv2.VideoCapture(path) # not sure if this is correct for video
+
+        self.capture.set(3, 640)
+        self.capture.set(4, 480)
+
+        self.image_width = self.capture.get(3)
+        self.image_height = self.capture.get(4)
+
+        print('Capture path: ', self.capture_path)
+        print('Capture: ', self.capture.isOpened())
+        print('Image width: ', self.image_width)
+        print('Image height: ', self.image_height)
+
     def load_image(self, path):
         self.image_path = path
         self.image = cv2.imread(path)
         self.image_height = self.image.shape[0]
         self.image_width = self.image.shape[1]
+
+    def analyse_video(self):
+        model = YOLO("yolov8n.pt")
+
+        while self.capture.isOpened():
+            success, img = self.capture.read()
+
+            if not success:
+                break
+
+            cv2.imshow('frame', img)
+            k = cv2.waitKey(1)
+            if k == ord('q'):
+                break
+            elif k == 32:
+                cv2.imshow('new', img)
+            # self.results = model(img, stream=True)
+            
+            print('fram height ', self.image_height)
+            print('cap', self.capture)
+            # print('success', success)
+            # print('img', img)
+            # self.image = img
+
+            # self.custom_boxes()
+            # self.draw_test_lines()
+            # self.draw_box()
+            ret, buffer = cv2.imencode('.jpg', img)
+
+            if not ret:
+                continue
+
+            frame = buffer.tobytes()
+
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+
+            # yield img
+            # self.image = img
+            # yield self.image
 
     def analyse_image(self):
         model = YOLO("yolov8n.pt")
@@ -237,6 +300,12 @@ class System:
 
     def check_danger_zone(self):
         pass
+
+    # def run_video_test(self):
+        # return self.analyse_video()
+        # self.analyse_video()
+        # return self.image
+
     def run_test(self):
         self.analyse_image()
         self.custom_boxes()
@@ -246,3 +315,5 @@ class System:
         self.draw_box()
         cv2.imshow('Img after drawing', self.image)
         cv2.waitKey(0)
+
+cv2.destroyAllWindows()
