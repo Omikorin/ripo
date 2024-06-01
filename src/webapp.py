@@ -4,8 +4,6 @@ from System import System
 
 
 sys = System()
-sys.load_video_capture(0)
-sys.configure( 23.5, 15.6, 10, 0.7, 5, 2.5)
 
 app = Flask(__name__)
 
@@ -21,11 +19,15 @@ def generate_frames():
 
 @app.route('/video')
 def video():
+    sys.load_video_capture('../bikes.mp4')
+    sys.configure( 23.5, 15.6, 10, 0.7, 5, 2.5)
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 @app.route('/webcam')
 def webcam():
+    sys.load_video_capture(0)
+    sys.configure( 23.5, 15.6, 10, 0.7, 5, 2.5)
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 

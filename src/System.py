@@ -1,3 +1,4 @@
+from time import sleep
 from Camera import Camera
 import math
 import cv2
@@ -47,14 +48,22 @@ class System:
 
         if path == 0: # webcam
             self.capture = cv2.VideoCapture(path, cv2.CAP_DSHOW)
+            # fix for camera not opening instantly, better than sleep
+            self.image_width = 640
+            self.image_height = 480
         else:
             self.capture = cv2.VideoCapture(path)
+            self.image_width = self.capture.get(3)
+            self.image_height = self.capture.get(4)
+        
+        print(self.capture.get(3))
+        print(self.capture.get(4))
 
         # self.capture.set(3, 640)
         # self.capture.set(4, 480)
 
-        self.image_width = self.capture.get(3)
-        self.image_height = self.capture.get(4)
+        # sleep(5)
+
 
         print('Capture path: ', self.capture_path)
         print('Capture: ', self.capture.isOpened())
