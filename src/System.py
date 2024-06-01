@@ -9,8 +9,6 @@ class System:
     def __init__(self):
         self.capture_path = None
         self.capture = None
-        self.capture_width = None
-        self.capture_height = None
         self.image_path = None
         self.results = None
         self.image_width = None
@@ -50,10 +48,10 @@ class System:
         if path == 0: # webcam
             self.capture = cv2.VideoCapture(path, cv2.CAP_DSHOW)
         else:
-            self.capture = cv2.VideoCapture(path) # not sure if this is correct for video
+            self.capture = cv2.VideoCapture(path)
 
-        self.capture.set(3, 640)
-        self.capture.set(4, 480)
+        # self.capture.set(3, 640)
+        # self.capture.set(4, 480)
 
         self.image_width = self.capture.get(3)
         self.image_height = self.capture.get(4)
@@ -78,12 +76,12 @@ class System:
             if not success:
                 break
 
-            cv2.imshow('frame', img)
-            k = cv2.waitKey(1)
-            if k == ord('q'):
-                break
-            elif k == 32:
-                cv2.imshow('new', img)
+            # cv2.imshow('frame', img)
+            # k = cv2.waitKey(1)
+            # if k == ord('q'):
+            #     break
+            # elif k == 32:
+            #     cv2.imshow('new', img)
             # self.results = model(img, stream=True)
             
             print('fram height ', self.image_height)
@@ -95,19 +93,21 @@ class System:
             # self.custom_boxes()
             # self.draw_test_lines()
             # self.draw_box()
-            ret, buffer = cv2.imencode('.jpg', img)
+            # ret, buffer = cv2.imencode('.jpg', img)
 
-            if not ret:
-                continue
+            # if not ret:
+            #     continue
 
-            frame = buffer.tobytes()
+            # frame = buffer.tobytes()
 
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+            # yield (b'--frame\r\n'
+            #        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-            # yield img
+            yield img
             # self.image = img
             # yield self.image
+
+        self.capture.release()
 
     def analyse_image(self):
         model = YOLO("yolov8n.pt")

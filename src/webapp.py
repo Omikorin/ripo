@@ -10,7 +10,7 @@ sys.configure( 23.5, 15.6, 10, 0.7, 5, 2.5)
 app = Flask(__name__)
 
 
-def generate_frames(path):
+def generate_frames():
     yolo_output = sys.analyse_video()
     for detection in yolo_output:
         ret, buffer = cv2.imencode('.jpg', detection)
@@ -19,9 +19,14 @@ def generate_frames(path):
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
     
 
+@app.route('/video')
+def video():
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
 @app.route('/webcam')
 def webcam():
-    return Response(sys.analyse_video(), mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == "__main__":
