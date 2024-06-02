@@ -53,8 +53,8 @@ class System:
             self.image_height = 480
         else:
             self.capture = cv2.VideoCapture(path)
-            self.image_width = self.capture.get(3)
-            self.image_height = self.capture.get(4)
+            self.image_width = int (self.capture.get(3))
+            self.image_height = int (self.capture.get(4))
         
         print(self.capture.get(3))
         print(self.capture.get(4))
@@ -81,7 +81,7 @@ class System:
 
         while self.capture.isOpened():
             success, img = self.capture.read()
-
+            self.image = img
             if not success:
                 break
 
@@ -91,7 +91,7 @@ class System:
             #     break
             # elif k == 32:
             #     cv2.imshow('new', img)
-            # self.results = model(img, stream=True)
+            self.results = model(img, stream=True)
             
             print('fram height ', self.image_height)
             print('cap', self.capture)
@@ -99,9 +99,9 @@ class System:
             # print('img', img)
             # self.image = img
 
-            # self.custom_boxes()
-            # self.draw_test_lines()
-            # self.draw_box()
+            self.custom_boxes()
+            self.draw_test_lines()
+            self.draw_box()
             # ret, buffer = cv2.imencode('.jpg', img)
 
             # if not ret:
@@ -112,9 +112,9 @@ class System:
             # yield (b'--frame\r\n'
             #        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-            yield img
+            # yield img
             # self.image = img
-            # yield self.image
+            yield self.image
 
         self.capture.release()
 
@@ -273,6 +273,7 @@ class System:
 
         pt1 = (0, line_y)
         pt2 = (self.image_width, line_y)
+        print(' Pt1: ', pt1, '  pt2:', pt2)
         cv2.line(self.image, pt1, pt2, (0, 255, 255), 3)
 
     def draw_test_lines(self):
