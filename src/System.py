@@ -81,7 +81,9 @@ class System:
 
         while self.capture.isOpened():
             success, img = self.capture.read()
+
             self.image = img
+
             if not success:
                 break
 
@@ -93,15 +95,15 @@ class System:
             #     cv2.imshow('new', img)
             self.results = model(img, stream=True)
             
-            print('fram height ', self.image_height)
-            print('cap', self.capture)
+            # print('fram height ', self.image_height)
+            # print('cap', self.capture)
             # print('success', success)
             # print('img', img)
             # self.image = img
 
-            self.custom_boxes()
-            self.draw_test_lines()
-            self.draw_box()
+            # self.custom_boxes()
+            # self.draw_test_lines()
+            # self.draw_box()
             # ret, buffer = cv2.imencode('.jpg', img)
 
             # if not ret:
