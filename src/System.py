@@ -6,6 +6,9 @@ from DangerZoneBox import DangerZoneBox
 from ultralytics import YOLO
 
 
+DEBUG_CPU = True
+
+
 class System:
     def __init__(self):
         self.capture_path = None
@@ -87,35 +90,13 @@ class System:
             if not success:
                 break
 
-            # cv2.imshow('frame', img)
-            # k = cv2.waitKey(1)
-            # if k == ord('q'):
-            #     break
-            # elif k == 32:
-            #     cv2.imshow('new', img)
             self.results = model(img, stream=True)
-            
-            # print('fram height ', self.image_height)
-            # print('cap', self.capture)
-            # print('success', success)
-            # print('img', img)
-            # self.image = img
 
-            # self.custom_boxes()
-            # self.draw_test_lines()
-            # self.draw_box()
-            # ret, buffer = cv2.imencode('.jpg', img)
+            if not DEBUG_CPU:
+                self.custom_boxes()
+                self.draw_test_lines()
+                self.draw_box()
 
-            # if not ret:
-            #     continue
-
-            # frame = buffer.tobytes()
-
-            # yield (b'--frame\r\n'
-            #        b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-            # yield img
-            # self.image = img
             yield self.image
 
         self.capture.release()

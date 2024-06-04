@@ -3,3 +3,6 @@ __pycache__
 
 # yolo models
 yolov8n.pt
+
+# flask files
+src/static/files/*.mp4
