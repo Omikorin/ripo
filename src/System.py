@@ -1,3 +1,4 @@
+from time import sleep
 from Camera import Camera
 import math
 import cv2
@@ -5,8 +6,13 @@ from DangerZoneBox import DangerZoneBox
 from ultralytics import YOLO
 
 
+DEBUG_CPU = True
+
+
 class System:
     def __init__(self):
+        self.capture_path = None
+        self.capture = None
         self.image_path = None
         self.results = None
         self.image_width = None
@@ -40,11 +46,61 @@ class System:
     def create_camera(self):
         self.camera = Camera(self.sensor_width, self.sensor_height, self.focal_length, self.camera_position_height)
 
+    def load_video_capture(self, path):
+        self.capture_path = path
+
+        if path == 0: # webcam
+            self.capture = cv2.VideoCapture(path, cv2.CAP_DSHOW)
+            # fix for camera not opening instantly, better than sleep
+            self.image_width = 640
+            self.image_height = 480
+        else:
+            self.capture = cv2.VideoCapture(path)
+            self.image_width = int (self.capture.get(3))
+            self.image_height = int (self.capture.get(4))
+        
+        print(self.capture.get(3))
+        print(self.capture.get(4))
+
+        # self.capture.set(3, 640)
+        # self.capture.set(4, 480)
+
+        # sleep(5)
+
+
+        print('Capture path: ', self.capture_path)
+        print('Capture: ', self.capture.isOpened())
+        print('Image width: ', self.image_width)
+        print('Image height: ', self.image_height)
+
     def load_image(self, path):
         self.image_path = path
         self.image = cv2.imread(path)
         self.image_height = self.image.shape[0]
         self.image_width = self.image.shape[1]
+
+    def analyse_video(self):
+        model = YOLO("yolov8n.pt")
+
+        while True:
+            success, img = self.capture.read()
+
+            if not success:
+                self.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                continue
+
+            self.image = img
+
+            self.results = model(img, stream=True)
+
+            if not DEBUG_CPU:
+                self.custom_boxes()
+                self.draw_test_lines()
+                self.draw_box()
+
+            yield self.image
+
+        self.capture.release()
 
     def analyse_image(self):
         model = YOLO("yolov8n.pt")
@@ -201,6 +257,7 @@ class System:
 
         pt1 = (0, line_y)
         pt2 = (self.image_width, line_y)
+        print(' Pt1: ', pt1, '  pt2:', pt2)
         cv2.line(self.image, pt1, pt2, (0, 255, 255), 3)
 
     def draw_test_lines(self):
@@ -237,6 +294,12 @@ class System:
 
     def check_danger_zone(self):
         pass
+
+    # def run_video_test(self):
+        # return self.analyse_video()
+        # self.analyse_video()
+        # return self.image
+
     def run_test(self):
         self.analyse_image()
         self.custom_boxes()
@@ -246,3 +309,5 @@ class System:
         self.draw_box()
         cv2.imshow('Img after drawing', self.image)
         cv2.waitKey(0)
+
+cv2.destroyAllWindows()

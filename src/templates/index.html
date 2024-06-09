@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>YOLOv8 Camera</title>
+    <style>
+      body {
+        font-family: Helvetica, sans-serif;
+        margin: 0px;
+        padding: 0px;
+        background-color: black;
+        color: white;
+      }
+      header {
+        display: grid;
+        text-align: center;
+        padding: 5px;
+      }
+      ul {
+        list-style: none;
+        padding: 0px;
+        display: inline-grid;
+      }
+      li {
+        display: inline-block;
+        background-color: gray;
+        border-radius: 10px;
+        padding: 10px;
+        margin: 10px;
+      }
+      li:hover {
+        background-color: red;
+        margin: 10px;
+      }
+      header a {
+        color: white;
+        text-decoration: none;
+        width: 100%;
+      }
+      main {
+        display: grid;
+        place-items: center;
+        height: 100vh;
+      }
+      form {
+        display: grid;
+        gap: 10px;
+        padding: 20px;
+        background-color: gray;
+        border-radius: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav>
+        <ul>
+          <li><a href="/home">Home</a></li>
+          <li><a href="/frontpage">Video</a></li>
+          <li><a href="/webcam">LiveWebcam</a></li>
+        </ul>
+      </nav>
+    </header>
+    <main>
+      <form action="/configure" method="POST">
+        <label for="sensor_width">Sensor Width</label>
+        <input
+          type="number"
+          step=".01"
+          name="sensor_width"
+          id="sensor_width"
+          placeholder="23.5"
+          value="{{ config['sensor_width'] }}"
+        />
+        <label for="sensor_height">Sensor Height</label>
+        <input
+          type="number"
+          step=".01"
+          name="sensor_height"
+          id="sensor_height"
+          placeholder="15.6"
+          value="{{ config['sensor_height'] }}"
+        />
+        <label for="focal_length">Focal Length</label>
+        <input
+          type="number"
+          step=".01"
+          name="focal_length"
+          id="focal_length"
+          placeholder="10"
+          value="{{ config['focal_length'] }}"
+        />
+        <label for="camera_position_height">Camera Position Height</label>
+        <input
+          type="number"
+          step=".01"
+          name="camera_position_height"
+          id="camera_position_height"
+          placeholder="0.7"
+          value="{{ config['camera_position_height'] }}"
+        />
+        <label for="box_width">Box Width</label>
+        <input
+          type="number"
+          step=".01"
+          name="box_width"
+          id="box_width"
+          placeholder="5"
+          value="{{ config['box_width'] }}"
+        />
+        <label for="box_height">Box Height</label>
+        <input
+          type="number"
+          step=".01"
+          name="box_height"
+          id="box_height"
+          placeholder="2.5"
+          value="{{ config['box_height'] }}"
+        />
+        <button type="submit">Submit</button>
+      </form>
+    </main>
+  </body>
+</html>
