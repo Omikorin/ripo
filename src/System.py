@@ -94,7 +94,7 @@ class System:
 
             if not DEBUG_CPU:
                 self.custom_boxes()
-                self.draw_test_lines()
+                # self.draw_test_lines()
                 self.draw_box()
 
             yield self.image
@@ -300,7 +300,7 @@ class System:
         self.custom_boxes()
         # cv2.imshow('Raw img from model', self.image)
         # perform overlay and drawing
-        self.draw_test_lines()
+        # self.draw_test_lines()
         self.draw_box()
         cv2.imshow('Img after drawing', self.image)
         cv2.waitKey(0)
