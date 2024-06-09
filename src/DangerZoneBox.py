@@ -1,3 +1,7 @@
+def _is_left(p0, p1, p2):
+    return (p1[0] - p0[0]) * (p2[1] - p0[1]) - (p2[0] - p0[0]) * (p1[1] - p0[1])
+
+
 class DangerZoneBox:
 
     def __init__(self, width_meters, height_meters):
@@ -7,13 +11,12 @@ class DangerZoneBox:
         """
         self.width_meters = width_meters
         self.height_meters = height_meters
-        self.top_left = 0
-        self.top_right = 0
-        self.bottom_left = 0
-        self.bottom_right = 0
+        self.top_left = (0, 0)
+        self.top_right = (0, 0)
+        self.bottom_left = (0, 0)
+        self.bottom_right = (0, 0)
         self.left_line_slope = 0
         self.left_line_y_intercept = 0
-        self.left_line_y_intercept = 0  # y = ax+b      <- its b
         self.right_line_slope = 0
         self.right_line_y_intercept = 0
         self.top_line_y = 0
@@ -34,38 +37,40 @@ class DangerZoneBox:
     def get_zone_borders(self):
         return self.top_left, self.top_right, self.bottom_left, self.bottom_right
 
-    def calculate_line(self, top, bottom):
+    def calculate_line(self, point1, point2):
         """
-        Top & bottom are tuples (int, int)
-        :param top:
-        :param bottom:
-        :return:
+        Calculate the slope and y-intercept of the line passing through two points.
         """
-        x1, y1 = bottom
-        x2, y2 = top
-        a = (y2 - y1) / (x2 - x1)
+        x1, y1 = point1
+        x2, y2 = point2
+        a = (y2 - y1) / (x2 - x1)  # slope
 
         # Calculate y-intercept using one of the points
         b = y1 - a * x1
 
         return a, b
 
-    def is_point_inside(self, x, y):
-        # y = ax + b
-        # then x = (y-b) / a
-        # to check if point (x1, y2) is between the lines horizontally we check if
-        #
+    def is_point_inside(self, point):
+        vertices = [self.top_left, self.top_right, self.bottom_right, self.bottom_left]
+        winding_number = 0
 
-        left_line_check = self.left_line_slope * x + self.left_line_y_intercept
-        right_line_check = self.right_line_slope * x + self.right_line_y_intercept
+        for i in range(len(vertices)):
+            if vertices[i][1] <= point[1]:
+                if vertices[(i + 1) % len(vertices)][1] > point[1]:
+                    if _is_left(vertices[i], vertices[(i + 1) % len(vertices)], point) > 0:
+                        winding_number += 1
+            else:
+                if vertices[(i + 1) % len(vertices)][1] <= point[1]:
+                    if _is_left(vertices[i], vertices[(i + 1) % len(vertices)], point) < 0:
+                        winding_number -= 1
 
-        if (y < left_line_check and y < right_line_check) or y < self.top_line_y:
-            return False
-        else:
-            return True
+        return winding_number != 0
 
     def is_object_inside(self, box):
-        x, y, x2, y2 = box.xyxy[0]
-        x, y, x2, y2 = int(x), int(y), int(x2), int(y2)
-        return self.is_point_inside(x, y) or self.is_point_inside(x2, y2) or self.is_point_inside(x2, y) or self.is_point_inside(x, y2)
+        """
+        Check if any corner of the object's bounding box is inside the danger zone.
+        """
+        x1, y1, x2, y2 = box.xyxy[0]
+        corners = [(x1, y1), (x2, y2), (x1, y2), (x2, y1)]
 
+        return any(self.is_point_inside((x, y)) for x, y in corners)
