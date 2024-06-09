@@ -82,13 +82,14 @@ class System:
     def analyse_video(self):
         model = YOLO("yolov8n.pt")
 
-        while self.capture.isOpened():
+        while True:
             success, img = self.capture.read()
 
-            self.image = img
-
             if not success:
-                break
+                self.capture.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                continue
+
+            self.image = img
 
             self.results = model(img, stream=True)
 
