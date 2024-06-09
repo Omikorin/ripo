@@ -1,5 +1,13 @@
-# syntax=docker/dockerfile:1.4
-FROM --platform=$BUILDPLATFORM python:3.10-alpine AS builder
+FROM python:3.11-slim-bookworm AS builder
+
+RUN apt-get update && apt-get install -y \
+    gfortran \
+    build-essential \
+    libopenblas-dev \
+    liblapack-dev \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -9,14 +17,15 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 COPY . /app
 
-ENTRYPOINT ["python3"]
-CMD ["webapp.py"]
+EXPOSE 5050
+
+ENTRYPOINT ["python3", "webapp.py"]
 
 FROM builder as dev-envs
 
 RUN <<EOF
-apk update
-apk add git
+apt-get update
+apt-get install git
 EOF
 
 RUN <<EOF

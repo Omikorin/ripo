@@ -1,5 +1,5 @@
 services:
-  web: 
+  web:
     build:
       context: src
       target: builder
@@ -7,4 +7,4 @@ services:
     # (default stop signal from Compose is SIGTERM)
     stop_signal: SIGINT
     ports:
-      - '5000:5000'
+      - "5050:5050"
