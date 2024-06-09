@@ -6,7 +6,7 @@ from DangerZoneBox import DangerZoneBox
 from ultralytics import YOLO
 
 
-DEBUG_CPU = True
+DEBUG_CPU = False
 
 
 class System:
@@ -56,8 +56,8 @@ class System:
             self.image_height = 480
         else:
             self.capture = cv2.VideoCapture(path)
-            self.image_width = int (self.capture.get(3))
-            self.image_height = int (self.capture.get(4))
+            self.image_width = int(self.capture.get(3))
+            self.image_height = int(self.capture.get(4))
         
         print(self.capture.get(3))
         print(self.capture.get(4))
@@ -256,7 +256,7 @@ class System:
 
         pt1 = (0, line_y)
         pt2 = (self.image_width, line_y)
-        print(' Pt1: ', pt1, '  pt2:', pt2)
+        # print(' Pt1: ', pt1, '  pt2:', pt2)
         cv2.line(self.image, pt1, pt2, (0, 255, 255), 3)
 
     def draw_test_lines(self):
@@ -283,12 +283,8 @@ class System:
                 if self.dangerZone.is_object_inside(box):
                     x, y, x2, y2 = box.xyxy[0]
                     x, y, x2, y2 = int(x), int(y), int(x2), int(y2)
-                    cv2.rectangle(self.image, (x, y), (x2, y2), (255, 0, 255), 3)
-                    print('Box:', box, ' is inside')
-
-                # if y2 > 630:
-                #     cv2.rectangle(self.image, (x, y), (x2, y2), (255, 255, 0), 3)
-                #     print('Distance from this object aprx: ' + str(self.calculate_distance(y2)))
+                    cv2.rectangle(self.image, (x, y), (x2, y2), (255, 128, 255), 3)
+                    # print('Box:', box, ' is inside')
 
 
     def check_danger_zone(self):
