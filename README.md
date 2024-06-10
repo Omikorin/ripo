@@ -1,32 +1,12 @@
 # RiPO
 
-## Installation
+## Requirements
 
-```sh
-t=ultralytics/ultralytics:latest
-```
-
-or for CPU version
-
-```sh
-t=ultralytics/ultralytics:latest-cpu
-```
-
-```sh
-sudo docker pull $t
-```
+- Docker Compose
+- Dedicated GPU or M1 laptop (MacBook)
 
 ## Running
 
 ```sh
-sudo docker run -it --ipc=host --gpus all $t
+docker compose up
 ```
-
-or for CPU version
-
-```sh
-sudo docker run -it --ipc=host $t
-```
-
-By using `-it` we are in the interactive mode, where we can communicate with YOLO.
-
