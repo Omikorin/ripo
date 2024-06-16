@@ -1,4 +1,4 @@
-from time import sleep
+import time
 from Camera import Camera
 import math
 import cv2
@@ -81,8 +81,12 @@ class System:
 
     def analyse_video(self):
         model = YOLO("yolov8n.pt")
+        target_fps = 25
+        frame_time = 1.0 / target_fps
 
         while True:
+            start_time = time.time()
+
             success, img = self.capture.read()
 
             if not success:
@@ -100,8 +104,12 @@ class System:
 
             yield self.image
 
-        self.capture.release()
+            elapsed_time = time.time() - start_time
+            delay = frame_time - elapsed_time
+            if delay > 0:
+                time.sleep(delay)
 
+        self.capture.release()
     def analyse_image(self):
         model = YOLO("yolov8n.pt")
         self.results = model(self.image_path, show=True)
