@@ -5,7 +5,7 @@ Collaborative academic project aimed at creating software with a configurator fo
 For the system to function properly, the camera must be placed in a specific way due to the underlying algorithm that calculates the approximate distance from the detected object. Flask was used for developing the web page with configurator, webcam, and video analysis pages.
 
 ## More details
-Detailed iformation is provided in `??`.
+Detailed information is provided in `ripo/docs`.
 
 ## Requirements
 
